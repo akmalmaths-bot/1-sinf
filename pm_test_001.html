@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Prezident Maktabiga Tayyorgarlik Testi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        /* Kichik ekranlar uchun tugma bosilish effekti */
+        button {
+            touch-action: manipulation;
+        }
+        /* JSBin "Edit in JS Bin" tugmasini yashirish */
+        #edit-with-js-bin {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col overflow-x-hidden">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white py-4 md:py-5 px-4 shadow-md">
+        <div class="max-w-3xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🏛️</div>
+                <!-- Sarlavha ID orqali boshqariladi -->
+                <h1 id="main-title" class="text-xl md:text-2xl font-bold leading-tight">Prezident Maktabiga Tayyorgarlik</h1>
+            </div>
+            <div class="flex flex-col items-end">
+                <!-- Ism juda uzun bo'lsa sig'ishi uchun max-w va truncate qo'shildi -->
+                <div id="user-display" class="hidden text-sm md:text-base font-medium bg-blue-700 px-4 py-1.5 rounded-full shadow-inner max-w-[130px] sm:max-w-[250px] truncate">
+                    <!-- Ism shu yerda chiqadi -->
+                </div>
+                <div id="watermark" class="hidden text-xs text-blue-200 mt-1 font-semibold tracking-wide opacity-90">
+                    <a href="https://t.me/maktabdarsibot" target="_blank" class="hover:underline">@maktabdarsibot</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-3xl mx-auto w-full p-4 md:p-6 lg:py-10 flex flex-col justify-center">
+        
+        <!-- Boshlash Oynasi (Ism so'rash) -->
+        <div id="screen-start" class="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-4">Mantiqiy-Matematik testga xush kelibsiz!</h2>
+            <p class="text-slate-600 mb-8 leading-relaxed text-lg">
+                Jami 20 ta murakkab savol. Har biriga <b>3 minut (180 soniya)</b> vaqt beriladi. Tez va to'g'ri topib, ⭐ yig'ing! Boshlash uchun ismingizni kiriting.
+            </p>
+            <form id="form-start" class="max-w-sm mx-auto space-y-5">
+                <input type="text" id="input-name" required maxlength="25" placeholder="Ismingizni yozing..." 
+                       class="w-full px-5 py-4 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-lg transition-all">
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold text-lg py-4 rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md">
+                    Testni Boshlash
+                </button>
+            </form>
+
+            <div class="mt-10 pt-6 border-t border-slate-100 text-sm md:text-base text-slate-500">
+                <p><strong>Test tuzuvchi:</strong> Akmaljon Jo'raqo'ziyev</p>
+                <p><strong>Telegram:</strong> <a href="https://t.me/akmalmaths" class="text-blue-600 hover:underline" target="_blank">@akmalmaths</a></p>
+            </div>
+        </div>
+
+        <!-- Savollar Oynasi -->
+        <div id="screen-quiz" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col w-full overflow-hidden">
+            <div class="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center flex-wrap gap-3">
+                <h3 class="text-base md:text-lg font-semibold text-slate-800">Savollar</h3>
+                <div class="flex gap-2 md:gap-3 flex-wrap">
+                    <span id="score-indicator" class="px-3 md:px-4 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs md:text-sm font-bold flex items-center gap-1 shadow-sm border border-yellow-200">
+                        ⭐ <span id="current-score">0</span>
+                    </span>
+                    <span id="timer-indicator" class="px-3 md:px-4 py-1.5 bg-orange-100 text-orange-800 rounded-full text-xs md:text-sm font-bold flex items-center gap-1 shadow-sm border border-orange-200">
+                        ⏱ <span id="time-left">180</span>s
+                    </span>
+                    <span id="progress-indicator" class="px-3 md:px-4 py-1.5 bg-blue-100 text-blue-800 rounded-full text-xs md:text-sm font-bold shadow-sm border border-blue-200">
+                        1 / 20
+                    </span>
+                </div>
+            </div>
+            
+            <div class="p-5 md:p-8 w-full">
+                <div id="question-container" class="w-full">
+                    <h4 id="question-text" class="text-lg md:text-2xl font-medium text-slate-800 mb-6 md:mb-8 leading-relaxed break-words">
+                        Yuklanmoqda...
+                    </h4>
+                    
+                    <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 w-full">
+                        <!-- Variantlar shu yerga tushadi -->
+                    </div>
+                </div>
+
+                <div id="feedback-container" class="mt-6 p-4 rounded-xl hidden text-center font-medium text-base md:text-lg w-full">
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border-t border-slate-200 p-4 flex justify-between items-center mt-auto">
+                <button id="btn-prev" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl text-sm md:text-base font-bold hover:bg-slate-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    &#8592; Oldingi
+                </button>
+                <button id="btn-next" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm md:text-base font-bold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    Keyingi &#8594;
+                </button>
+                <button id="btn-finish" class="hidden px-5 py-2.5 bg-green-600 text-white rounded-xl text-sm md:text-base font-bold hover:bg-green-700 transition-colors shadow-sm">
+                    Yakunlash &#10004;
+                </button>
+            </div>
+        </div>
+
+        <!-- Natija Oynasi -->
+        <div id="screen-result" class="hidden bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-slate-200 text-center">
+            <div id="result-emoji" class="text-7xl mb-4">🏆</div>
+            <h2 id="result-title" class="text-3xl font-bold text-slate-800 mb-2">Test Yakunlandi!</h2>
+            <p id="result-name" class="text-lg text-slate-600 mb-6 font-medium truncate"></p>
+            
+            <div class="bg-slate-50 rounded-2xl p-6 md:p-8 border border-slate-100 max-w-sm mx-auto mb-8 shadow-inner">
+                <p class="text-slate-500 mb-1 font-medium text-lg">To'plangan yulduzchalar:</p>
+                <p id="result-stars" class="text-5xl font-black text-yellow-500 mb-6 drop-shadow-sm">0 ⭐</p>
+
+                <p class="text-slate-500 mb-2 font-medium text-base">To'g'ri javoblar:</p>
+                <p id="result-score" class="text-3xl font-bold text-blue-600 mb-3">0 / 20</p>
+                <div class="w-full bg-slate-200 rounded-full h-3 mb-3">
+                    <div id="result-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+                <p id="result-percent" class="text-lg font-bold text-slate-700">0%</p>
+            </div>
+
+            <button id="btn-restart" class="bg-blue-600 text-white font-bold text-lg py-4 px-8 rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md">
+                Qaytadan ishlash ↻
+            </button>
+        </div>
+
+    </main>
+
+    <script>
+        // Prezident maktabiga tayyorgarlik ko'ruvchilar uchun murakkab mantiqiy savollar
+        const originalQuizData = [
+            {
+                question: "Ota va o'g'ilning yoshlari yig'indisi 48 ga teng. 4 yildan keyin ota o'g'lidan 3 marta katta bo'ladi. Hozir o'g'il necha yoshda?",
+                options: ["10 yoshda", "8 yoshda", "12 yoshda", "14 yoshda"],
+                correctIndex: 0
+            },
+            {
+                question: "Ikki bekat orasidagi masofa 120 km. Ular bir-biriga qarab ikkita velosipedchi yo'lga chiqdi. Birinchisining tezligi 15 km/soat, ikkinchisiniki 25 km/soat. Ular qancha vaqtdan keyin uchrashadi?",
+                options: ["3 soat", "2 soat", "4 soat", "5 soat"],
+                correctIndex: 0
+            },
+            {
+                question: "Qutidagi shokoladlarning 1/3 qismini Alisher, qolganining 1/4 qismini Bobur yedi. Shundan so'ng qutida 15 ta shokolad qoldi. Dastlab qutida nechta shokolad bo'lgan?",
+                options: ["30 ta", "45 ta", "60 ta", "40 ta"],
+                correctIndex: 0
+            },
+            {
+                question: "To'g'ri to'rtburchak shaklidagi bog'ning bo'yi enidan 3 marta uzun. Agar bog'ning perimetri 64 metr bo'lsa, uning yuzini toping.",
+                options: ["192 kv.m", "256 kv.m", "128 kv.m", "144 kv.m"],
+                correctIndex: 0
+            },
+            {
+                question: "Kitob betlari 1 dan boshlab raqamlab chiqilganda jami 252 ta raqam ishlatildi. Kitob necha sahifali?",
+                options: ["120 sahifali", "115 sahifali", "125 sahifali", "130 sahifali"],
+                correctIndex: 0
+            },
+            {
+                question: "1, 2, 3, 4 raqamlaridan foydalanib, raqamlari umuman takrorlanmaydigan nechta turli uch xonali son tuzish mumkin?",
+                options: ["24 ta", "12 ta", "16 ta", "64 ta"],
+                correctIndex: 0
+            },
+            {
+                question: "Qonuniyatni toping va keyingi sonni aniqlang: 2, 6, 12, 20, 30, ?",
+                options: ["42", "40", "44", "38"],
+                correctIndex: 0
+            },
+            {
+                question: "Tarozining bir pallasida 5 ta olma va 2 ta nok, ikkinchi pallasida 3 ta olma va 4 ta nok turganda tarozi muvozanatda bo'ladi. Bitta nok og'irligi nechta olmaga teng?",
+                options: ["1 ta olmaga", "2 ta olmaga", "3 ta olmaga", "yarimta olmaga"],
+                correctIndex: 0
+            },
+            {
+                question: "Soat 15:30 ni ko'rsatganda soat va minut millari orasidagi burchak aniq necha gradus bo'ladi?",
+                options: ["75 gradus", "90 gradus", "60 gradus", "105 gradus"],
+                correctIndex: 0
+            },
+            {
+                question: "Hovlida 3 g'ildirakli va 2 g'ildirakli jami 15 ta velosiped bor. Ularning g'ildiraklari soni jami 38 tani tashkil etsa, hovlida nechta 2 g'ildirakli velosiped bor?",
+                options: ["7 ta", "8 ta", "6 ta", "9 ta"],
+                correctIndex: 0
+            },
+            {
+                question: "3 ta usta 3 kunda 3 ta xonani ta'mirlaydi. Xuddi shunday tezlikda ishlaydigan 6 ta usta 6 kunda nechta xonani ta'mirlaydi?",
+                options: ["12 ta", "6 ta", "9 ta", "18 ta"],
+                correctIndex: 0
+            },
+            {
+                question: "Hovuzning 1/4 qismi suv bilan to'la. Unga yana 300 litr suv quyilsa, hovuzning teng yarmi to'ladi. Hovuzning umumiy sig'imi qancha?",
+                options: ["1200 litr", "600 litr", "900 litr", "1500 litr"],
+                correctIndex: 0
+            },
+            {
+                question: "Sotuvchi mahsulotni 40% ustama foyda bilan 28000 so'mga sotdi. Mahsulotning o'zining tannarxi qancha bo'lgan?",
+                options: ["20000 so'm", "24000 so'm", "18000 so'm", "22000 so'm"],
+                correctIndex: 0
+            },
+            {
+                question: "1 dan 100 gacha bo'lgan butun sonlar orasida ham 3 ga, ham 5 ga qoldiqsiz bo'linadigan nechta son bor?",
+                options: ["6 ta", "5 ta", "7 ta", "8 ta"],
+                correctIndex: 0
+            },
+            {
+                question: "Qutida 10 ta oq, 8 ta qizil va 6 ta qora shar bor. Ko'rmasdan turib kamida nechta shar olinsa, ularning ichida kafolatlangan holda 2 ta bir xil rangli shar bo'ladi?",
+                options: ["4 ta", "3 ta", "5 ta", "6 ta"],
+                correctIndex: 0
+            },
+            {
+                question: "Ikkita sonning yig'indisi 124 ga, ularning ayirmasi esa 36 ga teng. Shu sonlarning kattasini toping.",
+                options: ["80", "84", "76", "90"],
+                correctIndex: 0
+            },
+            {
+                question: "Bitta katta yog'och kubni uchala o'qi bo'yicha 3 ta teng qismga arralashdi (Kubik Rubik kabi). Jami nechta bir xil o'lchamdagi kichik kubchalar hosil bo'ldi?",
+                options: ["27 ta", "9 ta", "18 ta", "36 ta"],
+                correctIndex: 0
+            },
+            {
+                question: "Agar kunlardan birida 'Kecha emas, undan oldingi kun yakshanba edi' deyilsa, ertaga qaysi kun bo'ladi?",
+                options: ["Chorshanba", "Payshanba", "Juma", "Seshanba"],
+                correctIndex: 0
+            },
+            {
+                question: "Matematik qonuniyatni topib, keyingi sonni aniqlang: 1, 4, 27, 256, ?",
+                options: ["3125", "1024", "625", "1250"],
+                correctIndex: 0
+            },
+            {
+                question: "Toshbaqa kunduzi 5 metr yuqoriga tirmashib chiqadi, lekin tunda uxlab qolib 4 metr pastga sirpanib tushib ketadi. U 15 metr balandlikdagi chuqurlikdan necha kunda tashqariga chiqadi?",
+                options: ["11 kunda", "15 kunda", "10 kunda", "14 kunda"],
+                correctIndex: 0
+            }
+        ];
+
+        let quizData = [];
+        let currentIndex = 0;
+        let userAnswers = [];
+        let questionScores = [];
+        let questionTimes = []; // Har bir savolning vaqti saqlanadi
+        let totalScore = 0;
+        let userName = "";
+
+        // Taymer o'zgaruvchilari (Prezident maktabi darajasi uchun 180 soniya)
+        let timerInterval;
+        let timeLeft = 180;
+        let autoNextTimeout;
+
+        // DOM Elements
+        const screenStart = document.getElementById('screen-start');
+        const screenQuiz = document.getElementById('screen-quiz');
+        const screenResult = document.getElementById('screen-result');
+        const formStart = document.getElementById('form-start');
+        const inputName = document.getElementById('input-name');
+        const userDisplay = document.getElementById('user-display');
+        const watermark = document.getElementById('watermark');
+        const currentScoreDisplay = document.getElementById('current-score');
+        const mainTitle = document.getElementById('main-title');
+        
+        const elQuestionText = document.getElementById('question-text');
+        const elOptionsContainer = document.getElementById('options-container');
+        const elProgress = document.getElementById('progress-indicator');
+        const elTimeLeft = document.getElementById('time-left');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnFinish = document.getElementById('btn-finish');
+        const elFeedback = document.getElementById('feedback-container');
+
+        // Tasodifiy aralashtirish funksiyasi
+        function shuffleArray(array) {
+            let newArray = JSON.parse(JSON.stringify(array)); 
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Savollar va variantlarni birgalikda aralashtirib tayyorlash
+        function prepareQuizData(data) {
+            let shuffledQuestions = shuffleArray(data);
+            shuffledQuestions.forEach(q => {
+                let correctText = q.options[q.correctIndex]; // Asl to'g'ri javob matnini saqlab olamiz
+                q.options = shuffleArray(q.options); // Variantlarni aralashtiramiz
+                q.correctIndex = q.options.indexOf(correctText); // Yangi to'g'ri indeksni topamiz
+            });
+            return shuffledQuestions;
+        }
+
+        function initApp() {
+            formStart.addEventListener('submit', (e) => {
+                e.preventDefault();
+                userName = inputName.value.trim();
+                
+                // Faqat harflarni (lotin/kirill), probel, apostrof va chiziqchani qabul qilish
+                const namePattern = /^[a-zA-Zа-яА-ЯўЎқҚғҒҳҲ'’\s\-]+$/;
+                if (!namePattern.test(userName)) {
+                    alert("Iltimos, ismingizni kiritishda faqat harflardan foydalaning (raqam va maxsus belgilar mumkin emas).");
+                    return;
+                }
+
+                if (userName) {
+                    startQuiz();
+                }
+            });
+
+            btnPrev.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    renderQuestion();
+                }
+            });
+
+            btnNext.addEventListener('click', () => {
+                if (currentIndex < quizData.length - 1) {
+                    currentIndex++;
+                    renderQuestion();
+                }
+            });
+
+            btnFinish.addEventListener('click', showResult);
+            document.getElementById('btn-restart').addEventListener('click', restartQuiz);
+        }
+
+        function startQuiz() {
+            screenStart.classList.add('hidden');
+            screenQuiz.classList.remove('hidden');
+            
+            // Sarlavhani ikki qatorga o'zgartirish
+            mainTitle.innerHTML = '<span class="block">Prezident Maktabi</span><span class="block text-sm md:text-lg opacity-90">Tayyorgarlik Testi</span>';
+
+            userDisplay.textContent = `Ishtirokchi: ${userName}`;
+            userDisplay.classList.remove('hidden');
+            watermark.classList.remove('hidden');
+
+            quizData = prepareQuizData(originalQuizData);
+            userAnswers = new Array(quizData.length).fill(null);
+            questionScores = new Array(quizData.length).fill(0);
+            questionTimes = new Array(quizData.length).fill(180); // Har biri uchun 180 soniya (3 minut)
+            
+            totalScore = 0;
+            currentScoreDisplay.textContent = '0';
+            currentIndex = 0;
+
+            renderQuestion();
+            window.scrollTo(0, 0);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = questionTimes[currentIndex]; // Qolgan vaqtdan davom etadi
+            elTimeLeft.textContent = timeLeft;
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                questionTimes[currentIndex] = timeLeft; // Vaqtni xotiraga yozib boramiz
+                elTimeLeft.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleAnswer(-1); // -1 vaqt tugaganini bildiradi
+                }
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const data = quizData[currentIndex];
+            elQuestionText.textContent = `${currentIndex + 1}. ${data.question}`;
+            elProgress.textContent = `${currentIndex + 1} / ${quizData.length}`;
+            
+            clearTimeout(autoNextTimeout);
+
+            // Agar savolga hali javob berilmagan bo'lsa, taymerni ishga tushiramiz
+            if (userAnswers[currentIndex] === null) {
+                startTimer();
+            } else {
+                clearInterval(timerInterval);
+                elTimeLeft.textContent = "--";
+            }
+            
+            elOptionsContainer.innerHTML = '';
+            elFeedback.className = 'mt-6 p-4 rounded-xl hidden text-center font-medium text-base md:text-lg w-full';
+            elFeedback.innerHTML = '';
+
+            data.options.forEach((optionText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50 transition-all font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 break-words';
+                
+                const letter = String.fromCharCode(65 + index); 
+                
+                let iconContent = `<span class="flex-shrink-0 inline-block w-8 h-8 text-center leading-8 bg-slate-100 text-slate-500 rounded-lg mr-3 font-bold">${letter}</span>`;
+                let btnClasses = '';
+
+                if (userAnswers[currentIndex] !== null) {
+                    btn.disabled = true;
+                    btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50', 'cursor-pointer');
+                    
+                    if (index === data.correctIndex) {
+                        btnClasses = 'border-green-500 bg-green-50 text-green-800';
+                        iconContent = `<span class="flex-shrink-0 inline-block w-8 h-8 text-center leading-8 bg-green-200 text-green-800 rounded-lg mr-3 font-bold">&#10003;</span>`;
+                    } else if (index === userAnswers[currentIndex]) {
+                        btnClasses = 'border-red-500 bg-red-50 text-red-800';
+                        iconContent = `<span class="flex-shrink-0 inline-block w-8 h-8 text-center leading-8 bg-red-200 text-red-800 rounded-lg mr-3 font-bold">&#10007;</span>`;
+                    } else {
+                        btnClasses = 'opacity-50';
+                    }
+                } else {
+                    btn.addEventListener('click', () => handleAnswer(index));
+                }
+
+                if(btnClasses) {
+                    const classArray = btnClasses.split(' ');
+                    classArray.forEach(cls => btn.classList.add(cls));
+                }
+
+                btn.innerHTML = `
+                    <div class="flex items-center w-full">
+                        ${iconContent}
+                        <span class="flex-1">${optionText}</span>
+                    </div>
+                `;
+
+                elOptionsContainer.appendChild(btn);
+            });
+
+            if (userAnswers[currentIndex] !== null) {
+                const isCorrect = userAnswers[currentIndex] === data.correctIndex;
+                showFeedback(isCorrect, userAnswers[currentIndex]);
+            }
+
+            updateControls();
+        }
+
+        function handleAnswer(selectedIndex) {
+            clearInterval(timerInterval); // Javob belgilangach taymer to'xtaydi
+            const data = quizData[currentIndex];
+            const isCorrect = selectedIndex === data.correctIndex;
+
+            // Agar savolga birinchi marta javob berilayotgan bo'lsa
+            if (userAnswers[currentIndex] === null) {
+                userAnswers[currentIndex] = selectedIndex;
+                
+                if (selectedIndex === -1) {
+                    // Vaqt tugaganda 0 ball
+                    questionScores[currentIndex] = 0;
+                } else if (isCorrect) {
+                    // Vaqtga qarab 1 dan 5 gacha yulduzcha hisoblash (180 soniyaga asoslangan)
+                    let points = Math.ceil((timeLeft / 180) * 5);
+                    if (points < 1) points = 1;
+                    if (points > 5) points = 5;
+                    questionScores[currentIndex] = points;
+                    totalScore += points;
+                    currentScoreDisplay.textContent = totalScore;
+                } else {
+                    questionScores[currentIndex] = 0;
+                }
+            }
+            
+            renderQuestion(); 
+
+            // Agar to'g'ri topsa avtomatik o'tkazish
+            if (isCorrect && selectedIndex !== -1) {
+                autoNextTimeout = setTimeout(() => {
+                    if (currentIndex < quizData.length - 1) {
+                        currentIndex++;
+                        renderQuestion();
+                    } else {
+                        showResult();
+                    }
+                }, 1500); // 1.5 soniya kutadi
+            }
+        }
+
+        function showFeedback(isCorrect, selectedIndex) {
+            elFeedback.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800', 'bg-orange-100', 'text-orange-800');
+            
+            if (selectedIndex === -1) {
+                elFeedback.classList.add('bg-orange-100', 'text-orange-800');
+                elFeedback.innerHTML = '⏱ Vaqt tugadi! Keyingi savolga o\'ting.';
+            } else if (isCorrect) {
+                elFeedback.classList.add('bg-green-100', 'text-green-800');
+                let earnedPoints = questionScores[currentIndex];
+                elFeedback.innerHTML = `&#10004; Barakalla! To'g'ri javobni topdingiz. (+${earnedPoints} ⭐)`;
+            } else {
+                elFeedback.classList.add('bg-red-100', 'text-red-800');
+                elFeedback.innerHTML = '&#10008; Afsuski, noto\'g\'ri. O\'zingiz keyingisiga o\'tkazing.';
+            }
+        }
+
+        function updateControls() {
+            btnPrev.disabled = currentIndex === 0;
+            
+            if (currentIndex === quizData.length - 1) {
+                btnNext.classList.add('hidden');
+                btnFinish.classList.remove('hidden');
+                
+                btnFinish.disabled = userAnswers[currentIndex] === null;
+            } else {
+                btnNext.classList.remove('hidden');
+                btnFinish.classList.add('hidden');
+                btnNext.disabled = userAnswers[currentIndex] === null;
+            }
+        }
+
+        function showResult() {
+            let correctCount = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === quizData[idx].correctIndex) {
+                    correctCount++;
+                }
+            });
+
+            const percentage = Math.round((correctCount / quizData.length) * 100);
+
+            screenQuiz.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+            
+            document.getElementById('result-name').textContent = userName;
+            document.getElementById('result-stars').textContent = `${totalScore} ⭐`;
+            document.getElementById('result-score').textContent = `${correctCount} / ${quizData.length}`;
+            document.getElementById('result-percent').textContent = `${percentage}%`;
+            
+            setTimeout(() => {
+                document.getElementById('result-bar').style.width = `${percentage}%`;
+            }, 100);
+
+            const resultTitle = document.getElementById('result-title');
+            const resultEmoji = document.getElementById('result-emoji');
+            
+            if (percentage >= 80) {
+                resultEmoji.textContent = '🌟';
+                resultTitle.textContent = "A'lo Natija!";
+                resultTitle.className = "text-3xl font-bold text-green-600 mb-2";
+                document.getElementById('result-score').classList.replace('text-blue-600', 'text-green-600');
+                document.getElementById('result-bar').classList.replace('bg-blue-600', 'bg-green-600');
+            } else if (percentage >= 60) {
+                resultEmoji.textContent = '👍';
+                resultTitle.textContent = "Yaxshi Natija!";
+            } else {
+                resultEmoji.textContent = '📚';
+                resultTitle.textContent = "Ko'proq ishlash kerak";
+                resultTitle.className = "text-3xl font-bold text-orange-500 mb-2";
+                document.getElementById('result-score').classList.replace('text-blue-600', 'text-orange-500');
+                document.getElementById('result-bar').classList.replace('bg-blue-600', 'bg-orange-500');
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        function restartQuiz() {
+            screenResult.classList.add('hidden');
+            screenStart.classList.remove('hidden');
+            
+            // Sarlavhani yana asl holatga qaytarish
+            mainTitle.innerHTML = 'Prezident Maktabiga Tayyorgarlik';
+            
+            userDisplay.classList.add('hidden');
+            watermark.classList.add('hidden');
+            inputName.value = '';
+            
+            document.getElementById('result-bar').style.width = '0%';
+            document.getElementById('result-score').className = "text-3xl font-bold text-blue-600 mb-3";
+            document.getElementById('result-bar').className = "bg-blue-600 h-3 rounded-full transition-all duration-1000";
+            document.getElementById('result-title').className = "text-3xl font-bold text-slate-800 mb-2";
+
+            window.scrollTo(0, 0);
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
+
+    </script>
+</body>
+</html>
