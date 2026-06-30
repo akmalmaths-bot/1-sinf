@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semichka Chaqish Chempionati — Marketing Konsepsiyasi</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: #1f2833;
+            --accent-color: #ffc107;
+            --text-color: #c5c6c7;
+            --heading-color: #ffffff;
+            --glow-color: rgba(255, 193, 7, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+
+        header h1 {
+            color: var(--heading-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        header h1 span {
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .panel {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            flex: 1;
+            min-width: 320px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .panel h2 {
+            color: var(--heading-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+        }
+
+        /* Canvas o'yin qismi */
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        canvas {
+            background: radial-gradient(circle, #1f2833 0%, #151a21 100%);
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        .input-group {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #45f3ff;
+            background-color: #0b0c10;
+            color: #ffffff;
+            font-size: 1rem;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--glow-color);
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #ffe066;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--glow-color);
+        }
+
+        /* Reyting Jadvali */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--accent-color);
+            font-weight: 600;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .leaderboard-table tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.2s;
+        }
+
+        .leaderboard-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .rank {
+            font-weight: bold;
+            width: 50px;
+        }
+
+        .rank-1 { color: #ffd700; }
+        .rank-2 { color: #c0c0c0; }
+        .rank-3 { color: #cd7f32; }
+
+        .score {
+            text-align: right;
+            font-weight: bold;
+            color: #45f3ff;
+        }
+
+        /* Biznes foyda bo'limi */
+        .info-section {
+            max-width: 1200px;
+            width: 100%;
+            margin-top: 40px;
+            background: linear-gradient(135deg, #1f2833 0%, #11171d 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-top: 3px solid var(--accent-color);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .info-card h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><span>Semichka Chaqish</span> Chempionati</h1>
+        <p>Kompaniya savdo hajmini virusli marketing va geymifikatsiya orqali keskin oshirish loyihasining interaktiv prototipi.</p>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="panel">
+            <h2>Interaktiv Simulyator</h2>
+            <div class="game-area">
+                <p style="font-size: 0.9rem; text-align: center; color: #aaa;">
+                    Qadoq ichidagi kodni kiriting yoki semichkani sichqoncha bilan bosib "chaqing"!
+                </p>
+                <canvas id="gameCanvas" width="350" height="250"></canvas>
+                
+                <div class="input-group">
+                    <input type="text" id="promoCode" placeholder="Promo-kodni kiriting (Masalan: OMAD77)">
+                    <button onclick="submitCode()">Yuborish</button>
+                </div>
+                <p id="message" style="font-size: 0.95rem; height: 20px; font-weight: bold;"></p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Jonli Turnir Jadvali (Top 5)</h2>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th class="rank">O'rin</th>
+                        <th>Ishtirokchi</th>
+                        <th style="text-align: right;">Chaqilgan (Dona)</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="info-section">
+        <h2>Ushbu Loyiha Kompaniyaga Nima Beradi?</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>1. Savdo Hajmining Keskin O'sishi</h3>
+                <p>Har bir qadoq ichida noyob kod bo'ladi. Iste'molchilar reytingda yuqoriga ko'tarilish va qimmatbaho sovg'alarni yutish uchun mahsulotni qayta-qayta sotib olishni boshlaydilar.</p>
+            </div>
+            <div class="info-card">
+                <h3>2. Kuchli "Azart" va O'yin Muhiti</h3>
+                <p>Odamlar shunchaki sovg'a kutishmaydi, balki real vaqt rejimida turnir jadvalida kim o'zib ketayotganini ko'rib, raqobatga kirishadilar.</p>
+            </div>
+            <div class="info-card) ">
+                <h3>3. Ulkan Mijozlar Bazasi</h3>
+                <p>Platforma (yoki Telegram bot) orqali ro'yxatdan o'tgan yuz minglab faol foydalanuvchilar bazasi yig'iladi. Bu keyinchalik kompaniya uchun tekin reklama kanaliga aylanadi.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Loyihaning to'liq konsepsiyasi va mualliflik huquqi himoyalangan. Bog'lanish: +998950252647
+    </footer>
+
+    <script>
+        // Canvas va O'yin sozlamalari
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let score = 4120; // Foydalanuvchining boshlang'ich ochkosi
+        let particles = [];
+
+        // Reyting ma'lumotlari (Baza o'rniga demo ma'lumotlar)
+        let leaderboardData = [
+            { name: "Sardor Azimov", score: 5430 },
+            { name: "Madina Umarova", score: 4980 },
+            { name: "Siz (Demo Foydalanuvchi)", score: 4120, isUser: true },
+            { name: "Diyorbek Aliyev", score: 3850 },
+            { name: "Asilbek To'rayev", score: 3100 }
+        ];
+
+        // Semichka donasini chizish (SVG yoki rasm o'rniga Canvas elementlaridan foydalanamiz)
+        function drawSeed(isCracked = false) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            
+            if (!isCracked) {
+                // Butun semichka shakli
+                ctx.beginPath();
+                ctx.moveTo(0, -60);
+                ctx.bezierCurveTo(40, -20, 35, 50, 0, 70);
+                ctx.bezierCurveTo(-35, 50, -40, -20, 0, -60);
+                ctx.fillStyle = '#2d3748';
+                ctx.fill();
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Ichki chiziqlari
+                ctx.beginPath();
+                ctx.moveTo(0, -50);
+                ctx.quadraticCurveTo(15, 0, 0, 60);
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.stroke();
+            } else {
+                // Chaqilgan semichka po'chog'i (chap tomoni)
+                ctx.beginPath();
+                ctx.moveTo(-10, -60);
+                ctx.bezierCurveTo(-45, -20, -40, 50, -5, 70);
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // O'ng tomoni
+                ctx.beginPath();
+                ctx.moveTo(10, -60);
+                ctx.bezierCurveTo(45, -20, 40, 50, 5, 70);
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Ichidagi mag'zi
+                ctx.beginPath();
+                ctx.ellipse(0, 10, 12, 25, 0, 0, Math.PI * 2);
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+
+        // Zarrachalar (Portlash effekti uchun)
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 5 + 2;
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * -5 - 2;
+                this.color = '#ffc107';
+                this.alpha = 1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.speedY += 0.2; // Gravitatsiya
+                if (this.alpha > 0.02) this.alpha -= 0.02;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createExplosion() {
+            for (let i = 0; i < 20; i++) {
+                particles.push(new Particle(canvas.width / 2, canvas.height / 2));
+            }
+        }
+
+        function animate() {
+            drawSeed(particles.length > 0);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        // Reyting jadvalini yangilash funksiyasi
+        function updateLeaderboardView() {
+            // Saralash (Eng yuqori ochko tepaga chiqadi)
+            leaderboardData.sort((a, b) => b.score - a.score);
+            
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+            
+            leaderboardData.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                if(item.isUser) {
+                    tr.style.backgroundColor = 'rgba(69, 243, 255, 0.1)';
+                    tr.style.borderLeft = '3px solid #45f3ff';
+                }
+                
+                tr.innerHTML = `
+                    <td class="rank rank-${index + 1}">${index + 1}</td>
+                    <td style="color: ${item.isUser ? '#45f3ff' : '#fff'}; font-weight: ${item.isUser ? 'bold' : 'normal'}">${item.name}</td>
+                    <td class="score">${item.score}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Canvas bosilganda urug' chaqish animatsiyasi
+        canvas.addEventListener('click', () => {
+            score += 1;
+            // Bizning ochkomizni yangilash
+            let userObj = leaderboardData.find(el => el.isUser);
+            userObj.score = score;
+            
+            createExplosion();
+            updateLeaderboardView();
+            
+            document.getElementById('message').style.color = '#45f3ff';
+            document.getElementById('message').innerText = "+1 semichka chaqildi!";
+        });
+
+        // Promo kod kiritilganda katta ball berish
+        function submitCode() {
+            const input = document.getElementById('promoCode');
+            const msg = document.getElementById('message');
+            
+            if (input.value.trim() === '') {
+                msg.style.color = '#ff4a4a';
+                msg.innerText = "Iltimos, kodni kiriting!";
+                return;
+            }
+            
+            // Simulyatsiya: Har qanday kod +1000 ball beradi
+            score += 1000;
+            let userObj = leaderboardData.find(el => el.isUser);
+            userObj.score = score;
+            
+            createExplosion();
+            updateLeaderboardView();
+            
+            msg.style.color = '#2ecc71';
+            msg.innerText = `KOD QABUL QILINDI! +1000 ball qo'shildi.`;
+            input.value = '';
+        }
+
+        // Dastlabki ishga tushirish
+        updateLeaderboardView();
+        animate();
+    </script>
+</body>
+</html>
